@@ -11,14 +11,11 @@ fn read_image_pixels(image_path: &str) -> Vec<Vec<Rgba<u8>>>{
         // Get dimensions of the image
         let (width, height) = img.dimensions();
 
-        // Iterate through each pixel
         for y in 0..height {
             let mut line: Vec<Rgba<u8>> = vec![];
             for x in 0..width {
 
                 line.push(img.get_pixel(x, y));
-
-                // Do something with the pixel values
             }
             matrix.push(line);
         }
@@ -28,7 +25,7 @@ fn read_image_pixels(image_path: &str) -> Vec<Vec<Rgba<u8>>>{
     return matrix;
 }
 
-fn create_image_from_matrix(matrix: Vec<Vec<Rgba<u8>>>) -> DynamicImage {
+fn create_image_from_matrix(matrix: &Vec<Vec<Rgba<u8>>>) -> DynamicImage {
     let width = matrix[0].len() as u32;
     let height = matrix.len() as u32;
 
@@ -64,13 +61,13 @@ fn apply_kernel(neighborhood: &[Vec<Rgba<u8>>], kernel: &[Vec<i32>]) -> Rgba<u8>
 
 
 
-fn process_image(matrix: Vec<Vec<Rgba<u8>>>, kernel: &Vec<Vec<i32>>) -> Vec<Vec<Rgba<u8>>> {
-    let largeur = matrix.len();
-    let hauteur = matrix[0].len();
-    let kernel_largeur = kernel.len();
-    let kernel_hauteur = kernel[0].len();
+fn process_image(matrix: &Vec<Vec<Rgba<u8>>>, kernel: &Vec<Vec<i32>>) -> Vec<Vec<Rgba<u8>>> {
+    let largeur: usize = matrix.len();
+    let hauteur: usize = matrix[0].len();
+    let kernel_largeur: usize = kernel.len();
+    let kernel_hauteur: usize = kernel[0].len();
 
-    let mut result_matrix = vec![];
+    let mut result_matrix: Vec<Vec<Rgba<u8>>> = vec![];
 
     for i in 0..largeur {
         let mut row = vec![];
@@ -93,10 +90,7 @@ fn process_image(matrix: Vec<Vec<Rgba<u8>>>, kernel: &Vec<Vec<i32>>) -> Vec<Vec<
                     } else {
                         j
                     };
-
-                    // Do something with pos_i and pos_j, for example:
-                    let pixel_value = matrix[pos_i][pos_j];
-                    pixel_line.push(pixel_value);
+                    pixel_line.push(matrix[pos_i][pos_j]);
                 }
                 neighborhood.push(pixel_line);
             }
@@ -114,17 +108,17 @@ fn process_image(matrix: Vec<Vec<Rgba<u8>>>, kernel: &Vec<Vec<i32>>) -> Vec<Vec<
 
 
 fn main() {
-    let mut kernel1 = vec![];
+    let mut kernel1: Vec<Vec<i32>> = vec![];
     kernel1.push(vec![0, -1, 0]);
     kernel1.push(vec![-1, 4, -1]);
     kernel1.push(vec![0, -1, 0]);
 
-    let mut kernel2 = vec![];
+    let mut kernel2: Vec<Vec<i32>> = vec![];
     kernel2.push(vec![0, 0, 0]);
     kernel2.push(vec![0, 1, 0]);
     kernel2.push(vec![0, 0, 0]);
 
-    let mut img_paths = vec![];
+    let mut img_paths: Vec<&str> = vec![];
     img_paths.push("./img/50x50.png");
     img_paths.push("./img/100x100.png");
     img_paths.push("./img/200x200.png");
@@ -135,12 +129,12 @@ fn main() {
     img_paths.push("./img/2000x2000.png");
 
     for image_path in img_paths{
-        let t0 = Instant::now();
-        let matrix = read_image_pixels(image_path);
-        let matrix1 = process_image(matrix, &kernel1);
-        create_image_from_matrix(matrix1);
-        let t1 = Instant::now();
-        let elapsed_time = t1 - t0;
+        let t0: Instant = Instant::now();
+        let matrix: Vec<Vec<Rgba<u8>>> = read_image_pixels(image_path);
+        let matrix1: Vec<Vec<Rgba<u8>>> = process_image(&matrix, &kernel1);
+        create_image_from_matrix(&matrix1);
+        let t1: Instant = Instant::now();
+        let elapsed_time: std::time::Duration = t1 - t0;
         print!("Image : {}, Time : {}\n", image_path, elapsed_time.as_secs_f64());
     }
     
